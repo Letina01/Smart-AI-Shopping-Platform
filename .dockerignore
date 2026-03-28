@@ -1,0 +1,9 @@
+.git
+.idea
+.github
+frontend
+mysql-init
+**/target
+**/node_modules
+**/.DS_Store
+**/*.iml

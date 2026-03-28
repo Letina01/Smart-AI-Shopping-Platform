@@ -1,0 +1,4 @@
+com\smart\shopping\notificationservice\dto\OrderHistoryEvent.class
+com\smart\shopping\notificationservice\dto\UserProfileDto.class
+com\smart\shopping\notificationservice\service\NotificationService.class
+com\smart\shopping\notificationservice\NotificationServiceApplication.class

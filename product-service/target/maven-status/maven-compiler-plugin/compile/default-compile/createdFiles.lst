@@ -1,0 +1,7 @@
+com\smart\shopping\productservice\dto\ProductDto$ProductDtoBuilder.class
+com\smart\shopping\productservice\ProductServiceApplication.class
+com\smart\shopping\productservice\service\ProductService.class
+com\smart\shopping\productservice\controller\ProductController.class
+com\smart\shopping\productservice\dto\DummyJsonProductResponse.class
+com\smart\shopping\productservice\dto\DummyJsonProductResponse$DummyJsonProduct.class
+com\smart\shopping\productservice\dto\ProductDto.class

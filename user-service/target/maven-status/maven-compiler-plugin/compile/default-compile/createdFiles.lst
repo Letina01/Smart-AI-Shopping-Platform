@@ -1,0 +1,8 @@
+com\smart\shopping\userservice\entity\Address.class
+com\smart\shopping\userservice\entity\Address$AddressBuilder.class
+com\smart\shopping\userservice\repository\UserProfileRepository.class
+com\smart\shopping\userservice\UserServiceApplication.class
+com\smart\shopping\userservice\controller\UserController.class
+com\smart\shopping\userservice\entity\UserProfile$UserProfileBuilder.class
+com\smart\shopping\userservice\entity\UserProfile.class
+com\smart\shopping\userservice\service\UserService.class

@@ -1,0 +1,83 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          enabled: true
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - http://localhost:3000
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - Authorization
+              - Content-Type
+              - X-Requested-With
+            exposedHeaders:
+              - Authorization
+            allowCredentials: true
+      routes:
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:http://auth-service:9898}
+          predicates:
+            - Path=/auth/**,/login/**,/oauth2/**
+
+        - id: user-service
+          uri: ${USER_SERVICE_URL:http://user-service:9001}
+          predicates:
+            - Path=/users/**
+
+        - id: product-service
+          uri: ${PRODUCT_SERVICE_URL:http://product-service:9002}
+          predicates:
+            - Path=/products/**
+
+        - id: ai-service
+          uri: ${AI_SERVICE_URL:http://ai-service:9003}
+          predicates:
+            - Path=/ai/**
+
+        - id: order-service
+          uri: ${ORDER_SERVICE_URL:http://order-service:9004}
+          predicates:
+            - Path=/orders/**
+
+        - id: cart-service
+          uri: ${ORDER_SERVICE_URL:http://order-service:9004}
+          predicates:
+            - Path=/cart/**
+
+        - id: payment-service
+          uri: ${ORDER_SERVICE_URL:http://order-service:9004}
+          predicates:
+            - Path=/payment/**
+
+        - id: history-service
+          uri: ${HISTORY_SERVICE_URL:http://history-service:9005}
+          predicates:
+            - Path=/history/**
+
+jwt:
+  secret: ${JWT_SECRET:smart-ai-shopping-dev-secret-key-1234567890}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}

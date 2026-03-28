@@ -1,0 +1,10 @@
+com\smart\shopping\historyservice\entity\SearchHistory.class
+com\smart\shopping\historyservice\HistoryServiceApplication.class
+com\smart\shopping\historyservice\repository\SearchHistoryRepository.class
+com\smart\shopping\historyservice\entity\OrderHistory$OrderHistoryBuilder.class
+com\smart\shopping\historyservice\repository\OrderHistoryRepository.class
+com\smart\shopping\historyservice\entity\SearchHistory$SearchHistoryBuilder.class
+com\smart\shopping\historyservice\dto\OrderHistoryEvent.class
+com\smart\shopping\historyservice\service\HistoryService.class
+com\smart\shopping\historyservice\controller\HistoryController.class
+com\smart\shopping\historyservice\entity\OrderHistory.class

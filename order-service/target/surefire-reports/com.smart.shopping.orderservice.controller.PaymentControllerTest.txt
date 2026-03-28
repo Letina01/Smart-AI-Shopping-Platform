@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.smart.shopping.orderservice.controller.PaymentControllerTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.133 s -- in com.smart.shopping.orderservice.controller.PaymentControllerTest

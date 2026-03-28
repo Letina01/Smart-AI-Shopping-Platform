@@ -1,0 +1,22 @@
+server:
+  port: 9003
+
+spring:
+  application:
+    name: ai-service
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.7
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}

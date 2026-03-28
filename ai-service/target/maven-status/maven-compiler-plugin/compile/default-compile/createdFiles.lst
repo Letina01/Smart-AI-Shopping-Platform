@@ -1,0 +1,7 @@
+com\smart\shopping\aiservice\AiServiceApplication.class
+com\smart\shopping\aiservice\dto\ProductAiDto$ProductAiDtoBuilder.class
+com\smart\shopping\aiservice\dto\ProductAiDto.class
+com\smart\shopping\aiservice\dto\AiRecommendationResponse.class
+com\smart\shopping\aiservice\controller\AiController.class
+com\smart\shopping\aiservice\service\AiService.class
+com\smart\shopping\aiservice\dto\AiRecommendationResponse$AiRecommendationResponseBuilder.class

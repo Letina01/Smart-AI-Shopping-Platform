@@ -1,0 +1,13 @@
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\dto\ApiErrorResponse.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\config\AuthConfig.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\exception\AuthExceptionHandler.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\service\AuthService.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\AuthServiceApplication.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\config\CustomUserDetailsService.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\config\CustomUserDetails.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\config\GoogleOAuthCondition.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\entity\UserCredential.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\repository\UserCredentialRepository.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\config\GoogleOAuthConfig.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\util\JwtUtil.java
+C:\Users\ANJALI SHAW\OneDrive\Documents\Desktop\Smart AI Shopping Platform\auth-service\src\main\java\com\smart\shopping\authservice\controller\AuthController.java
