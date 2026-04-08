@@ -1,0 +1,27 @@
+services:
+  eureka-server:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/eureka-server:${IMAGE_TAG:-latest}
+
+  api-gateway:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/api-gateway:${IMAGE_TAG:-latest}
+
+  auth-service:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/auth-service:${IMAGE_TAG:-latest}
+
+  user-service:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/user-service:${IMAGE_TAG:-latest}
+
+  product-service:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/product-service:${IMAGE_TAG:-latest}
+
+  ai-service:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/ai-service:${IMAGE_TAG:-latest}
+
+  order-service:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/order-service:${IMAGE_TAG:-latest}
+
+  history-service:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/history-service:${IMAGE_TAG:-latest}
+
+  notification-service:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}/notification-service:${IMAGE_TAG:-latest}

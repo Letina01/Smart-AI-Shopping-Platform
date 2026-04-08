@@ -1,0 +1,108 @@
+name: CD Deploy to AWS EC2 (ECR + SSM)
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  SERVICES: "eureka-server api-gateway auth-service user-service product-service ai-service order-service history-service notification-service"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push service images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY_PREFIX: ${{ secrets.ECR_REPOSITORY_PREFIX }}
+        run: |
+          set -e
+          for service in $SERVICES; do
+            repo_name="${ECR_REPOSITORY_PREFIX}/${service}"
+            aws ecr describe-repositories --repository-names "$repo_name" >/dev/null 2>&1 || \
+              aws ecr create-repository --repository-name "$repo_name" >/dev/null
+
+            image_latest="$ECR_REGISTRY/$repo_name:latest"
+            image_sha="$ECR_REGISTRY/$repo_name:${GITHUB_SHA}"
+
+            docker build -t "$image_latest" -t "$image_sha" "./$service"
+            docker push "$image_latest"
+            docker push "$image_sha"
+          done
+
+      - name: Deploy on EC2 via SSM
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          set -e
+
+          commands_json=$(cat <<EOF
+          [
+            "set -e",
+            "sudo systemctl enable --now docker",
+            "command -v git >/dev/null 2>&1 || sudo dnf install -y git",
+            "docker compose version >/dev/null 2>&1 || sudo dnf install -y docker-compose-plugin",
+            "mkdir -p /home/ec2-user",
+            "cd /home/ec2-user",
+            "if [ ! -d smart-ai-shopping-platform/.git ]; then git clone https://github.com/${{ github.repository }}.git smart-ai-shopping-platform; fi",
+            "cd smart-ai-shopping-platform",
+            "git fetch origin main",
+            "git checkout main",
+            "git reset --hard origin/main",
+            "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${ECR_REGISTRY}",
+            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ secrets.ECR_REPOSITORY_PREFIX }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml pull",
+            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ secrets.ECR_REPOSITORY_PREFIX }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml up -d --remove-orphans"
+          ]
+          EOF
+          )
+
+          command_id=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy Smart AI Shopping Platform" \
+            --parameters "commands=${commands_json}" \
+            --query "Command.CommandId" \
+            --output text)
+
+          aws ssm wait command-executed \
+            --command-id "$command_id" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}"
+
+          status=$(aws ssm get-command-invocation \
+            --command-id "$command_id" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --query "Status" \
+            --output text)
+
+          aws ssm get-command-invocation \
+            --command-id "$command_id" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --query "StandardOutputContent" \
+            --output text
+
+          if [ "$status" != "Success" ]; then
+            aws ssm get-command-invocation \
+              --command-id "$command_id" \
+              --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+              --query "StandardErrorContent" \
+              --output text
+            exit 1
+          fi
