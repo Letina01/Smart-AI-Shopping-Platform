@@ -9,6 +9,7 @@ permissions:
   contents: read
 
 env:
+  ECR_REPOSITORY: smart-ai-shopping-platform
   SERVICES: "eureka-server api-gateway auth-service user-service product-service ai-service order-service history-service notification-service"
 
 jobs:
@@ -32,7 +33,7 @@ jobs:
       - name: Build and push service images
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY_PREFIX: ${{ secrets.ECR_REPOSITORY_PREFIX }}
+          ECR_REPOSITORY_PREFIX: ${{ env.ECR_REPOSITORY }}
         run: |
           set -e
           for service in $SERVICES; do
@@ -68,8 +69,8 @@ jobs:
             "git checkout main",
             "git reset --hard origin/main",
             "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${ECR_REGISTRY}",
-            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ secrets.ECR_REPOSITORY_PREFIX }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml pull",
-            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ secrets.ECR_REPOSITORY_PREFIX }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml up -d --remove-orphans"
+            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml pull",
+            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml up -d --remove-orphans"
           ]
           EOF
           )
