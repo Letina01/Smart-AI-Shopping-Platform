@@ -44,7 +44,7 @@ jobs:
             image_latest="$ECR_REGISTRY/$repo_name:latest"
             image_sha="$ECR_REGISTRY/$repo_name:${GITHUB_SHA}"
 
-            docker build -t "$image_latest" -t "$image_sha" "./$service"
+            docker build -f "./$service/Dockerfile" -t "$image_latest" -t "$image_sha" "."
             docker push "$image_latest"
             docker push "$image_sha"
           done
