@@ -116,16 +116,20 @@ jobs:
 
           prep_cmds='[
             "set -e",
-            "sudo systemctl enable --now docker",
-            "docker-compose --version",
-            "APP_DIR=\"\"; for d in /root/smart-ai-shopping-platform /home/ec2-user/smart-ai-shopping-platform; do if [ -f \"$d/docker-compose.yml\" ]; then APP_DIR=\"$d\"; break; fi; done; if [ -z \"$APP_DIR\" ]; then echo \"compose files not found in /root or /home/ec2-user\"; exit 1; fi; echo \"Using APP_DIR=$APP_DIR\"",
-            "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin '"${ECR_REGISTRY}"'"
+            "echo \"SSM prepare started\"",
+            "whoami",
+            "command -v aws",
+            "command -v docker",
+            "command -v docker-compose"
           ]'
 
           deploy_cmds='[
             "set -e",
-            "APP_DIR=\"\"; for d in /root/smart-ai-shopping-platform /home/ec2-user/smart-ai-shopping-platform; do if [ -f \"$d/docker-compose.yml\" ]; then APP_DIR=\"$d\"; break; fi; done; [ -n \"$APP_DIR\" ]",
-            "cd $APP_DIR",
+            "APP_DIR=\"\"; if [ -f /root/smart-ai-shopping-platform/docker-compose.yml ]; then APP_DIR=/root/smart-ai-shopping-platform; elif [ -f /home/ec2-user/smart-ai-shopping-platform/docker-compose.yml ]; then APP_DIR=/home/ec2-user/smart-ai-shopping-platform; else echo \"compose files not found\"; exit 1; fi",
+            "echo \"Using APP_DIR=$APP_DIR\"",
+            "cd \"$APP_DIR\"",
+            "docker rm -f smart-ai-shopping-platform-eureka-server-1 smart-ai-shopping-platform-api-gateway-1 smart-ai-shopping-platform-ai-service-1 smart-ai-shopping-platform-redis-1 || true",
+            "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin '"${ECR_REGISTRY}"'",
             "ECR_REGISTRY='"${ECR_REGISTRY}"' ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker-compose -f docker-compose.yml -f docker-compose.ecr.yml pull ${{ env.DEMO_SERVICES }}",
             "ECR_REGISTRY='"${ECR_REGISTRY}"' ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker-compose -f docker-compose.yml -f docker-compose.ecr.yml up -d --no-build --remove-orphans ${{ env.DEMO_SERVICES }}"
           ]'
