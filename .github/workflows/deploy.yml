@@ -61,7 +61,7 @@ jobs:
             "set -e",
             "sudo systemctl enable --now docker",
             "command -v git >/dev/null 2>&1 || sudo dnf install -y git",
-            "docker compose version >/dev/null 2>&1 || sudo dnf install -y docker-compose-plugin",
+            "docker-compose --version",
             "mkdir -p /home/ec2-user",
             "cd /home/ec2-user",
             "if [ ! -d smart-ai-shopping-platform/.git ]; then git clone https://github.com/${{ github.repository }}.git smart-ai-shopping-platform; fi",
@@ -70,8 +70,8 @@ jobs:
             "git checkout main",
             "git reset --hard origin/main",
             "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${ECR_REGISTRY}",
-            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml pull ${{ env.DEMO_SERVICES }}",
-            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker compose -f docker-compose.yml -f docker-compose.ecr.yml up -d --remove-orphans ${{ env.DEMO_SERVICES }}"
+            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker-compose -f docker-compose.yml -f docker-compose.ecr.yml pull ${{ env.DEMO_SERVICES }}",
+            "ECR_REGISTRY=${ECR_REGISTRY} ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker-compose -f docker-compose.yml -f docker-compose.ecr.yml up -d --no-build --remove-orphans ${{ env.DEMO_SERVICES }}"
           ]
           EOF
           )
