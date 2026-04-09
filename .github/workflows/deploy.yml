@@ -101,6 +101,10 @@ jobs:
                 --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
                 --query "StandardErrorContent" \
                 --output text
+              aws ssm list-command-invocations \
+                --command-id "$command_id" \
+                --details \
+                --output json
 
               if [ $attempt -eq $max_attempts ]; then
                 return 1
@@ -114,16 +118,14 @@ jobs:
             "set -e",
             "sudo systemctl enable --now docker",
             "docker-compose --version",
-            "command -v git >/dev/null 2>&1 || sudo dnf install -y git",
-            "mkdir -p /home/ec2-user/smart-ai-shopping-platform",
-            "if [ ! -d /home/ec2-user/smart-ai-shopping-platform/.git ]; then git clone https://github.com/${{ github.repository }}.git /home/ec2-user/smart-ai-shopping-platform; fi",
-            "cd /home/ec2-user/smart-ai-shopping-platform && git fetch origin main && git checkout main && git reset --hard origin/main",
+            "APP_DIR=\"\"; for d in /root/smart-ai-shopping-platform /home/ec2-user/smart-ai-shopping-platform; do if [ -f \"$d/docker-compose.yml\" ]; then APP_DIR=\"$d\"; break; fi; done; if [ -z \"$APP_DIR\" ]; then echo \"compose files not found in /root or /home/ec2-user\"; exit 1; fi; echo \"Using APP_DIR=$APP_DIR\"",
             "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin '"${ECR_REGISTRY}"'"
           ]'
 
           deploy_cmds='[
             "set -e",
-            "cd /home/ec2-user/smart-ai-shopping-platform",
+            "APP_DIR=\"\"; for d in /root/smart-ai-shopping-platform /home/ec2-user/smart-ai-shopping-platform; do if [ -f \"$d/docker-compose.yml\" ]; then APP_DIR=\"$d\"; break; fi; done; [ -n \"$APP_DIR\" ]",
+            "cd $APP_DIR",
             "ECR_REGISTRY='"${ECR_REGISTRY}"' ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker-compose -f docker-compose.yml -f docker-compose.ecr.yml pull ${{ env.DEMO_SERVICES }}",
             "ECR_REGISTRY='"${ECR_REGISTRY}"' ECR_REPOSITORY_PREFIX=${{ env.ECR_REPOSITORY }} IMAGE_TAG=latest docker-compose -f docker-compose.yml -f docker-compose.ecr.yml up -d --no-build --remove-orphans ${{ env.DEMO_SERVICES }}"
           ]'
