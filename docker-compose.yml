@@ -233,7 +233,7 @@ services:
     networks:
       - shopping-network
     healthcheck:
-      test: ["cmd", "nc", "-z", "localhost", "2181"]
+      test: ["CMD", "echo", "ruok"]
       interval: 10s
       timeout: 5s
       retries: 5
