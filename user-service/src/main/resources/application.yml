@@ -24,3 +24,16 @@ eureka:
 
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: ec2
+  datasource:
+    url: jdbc:mysql://mysql-db:3306/user_db
+
+eureka:
+  client:
+    enabled: false
+  enabled: false

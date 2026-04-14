@@ -1,0 +1,83 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
+      - SERVER_PORT=8080
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx256m -Djava.security.egd=file:/dev/./urandom
+      - USER_SERVICE_URL=http://user-service:9001
+      - PRODUCT_SERVICE_URL=http://product-service:9002
+      - JWT_SECRET=${JWT_SECRET:-smart-ai-shopping-dev-secret-key-1234567890}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+    depends_on:
+      - user-service
+      - product-service
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: ./user-service/Dockerfile
+    ports:
+      - "9001:9001"
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
+      - SERVER_PORT=9001
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx256m
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/user_db?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-shopping_user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-shopping_pass}
+    depends_on:
+      - mysql-db
+    networks:
+      - app-network
+
+  product-service:
+    build:
+      context: .
+      dockerfile: ./product-service/Dockerfile
+    ports:
+      - "9002:9002"
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
+      - SERVER_PORT=9002
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx256m
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    networks:
+      - app-network
+
+  mysql-db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root_pass}
+      - MYSQL_DATABASE=user_db
+      - MYSQL_USER=${DB_USER:-shopping_user}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-shopping_pass}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: always
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

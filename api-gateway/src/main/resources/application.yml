@@ -81,3 +81,25 @@ eureka:
 
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: ec2
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://user-service:9001
+          predicates:
+            - Path=/users/**
+        - id: product-service
+          uri: http://product-service:9002
+          predicates:
+            - Path=/products/**
+
+eureka:
+  client:
+    enabled: false
+  enabled: false

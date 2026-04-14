@@ -25,3 +25,17 @@ app:
 external:
   product-api:
     base-url: ${PRODUCT_API_BASE_URL:https://dummyjson.com}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: ec2
+  data:
+    redis:
+      host: redis
+
+eureka:
+  client:
+    enabled: false
+  enabled: false

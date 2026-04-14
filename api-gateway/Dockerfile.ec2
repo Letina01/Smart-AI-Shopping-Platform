@@ -8,6 +8,5 @@ RUN groupadd -r spring && useradd -r -g spring spring
 WORKDIR /app
 COPY --from=builder /workspace/api-gateway/target/api-gateway-1.0.0.jar app.jar
 USER spring:spring
-EXPOSE ${PORT:-8080}
-ENTRYPOINT ["sh", "-c", "java $JAVA_TOOL_OPTIONS -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar --server.port=${PORT:-8080}"]
-
+EXPOSE 8080
+ENTRYPOINT ["java", "-Xms128m", "-Xmx256m", "-jar", "/app/app.jar", "--server.port=8080"]
