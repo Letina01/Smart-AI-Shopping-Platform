@@ -8,5 +8,6 @@ RUN groupadd -r spring && useradd -r -g spring spring
 WORKDIR /app
 COPY --from=builder /workspace/notification-service/target/notification-service-1.0.0.jar app.jar
 USER spring:spring
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+EXPOSE ${PORT:-9006}
+ENTRYPOINT ["java", "-jar", "/app/app.jar", "--server.port=${PORT:-9006}"]
 

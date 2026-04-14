@@ -8,5 +8,6 @@ RUN groupadd -r spring && useradd -r -g spring spring
 WORKDIR /app
 COPY --from=builder /workspace/eureka-server/target/eureka-server-1.0.0.jar app.jar
 USER spring:spring
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+EXPOSE ${PORT:-8761}
+ENTRYPOINT ["java", "-jar", "/app/app.jar", "--server.port=${PORT:-8761}"]
 
