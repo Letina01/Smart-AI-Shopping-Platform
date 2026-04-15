@@ -89,3 +89,100 @@ Run these from their respective directories using `mvn spring-boot:run` or your 
 ## 📄 Notes
 - The default JWT secret is hardcoded for demo purposes; in production, use Environment Variables.
 - AI Service uses mock integration for Spring AI; connect a real provider (OpenAI/Ollama) in `ai-service/application.yml` for real LLM responses.
+
+---
+
+## ☁️ AWS EC2 Free Tier Deployment
+
+### Overview
+This section provides instructions for deploying a minimal, stable version of the application on AWS EC2 Free Tier (t2.micro).
+
+### Optimized Services for EC2
+The following 4 services are enabled for free tier deployment:
+- **api-gateway** (Port 8080) - Main entry point
+- **auth-service** (Port 9898) - Authentication with H2 database
+- **user-service** (Port 9001) - User management
+- **product-service** (Port 9002) - Product search
+
+### Excluded Services (for Free Tier)
+The following heavy services are disabled to save memory and storage:
+- MySQL, Kafka, Zookeeper, Redis, Eureka, AI Service, Notification Service, History Service, Order Service
+
+### Prerequisites
+1. AWS EC2 instance (t2.micro or t3.micro)
+2. Ubuntu 22.04 LTS or Amazon Linux 2023
+3. Docker and Docker Compose installed
+
+### Deployment Steps
+
+#### 1. Connect to EC2 Instance
+```bash
+ssh -i your-key.pem ubuntu@your-ec2-ip
+```
+
+#### 2. Install Docker
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose
+sudo usermod -aG docker ubuntu
+```
+
+#### 3. Transfer Project Files
+```bash
+# From your local machine
+scp -i your-key.pem -r ./Smart\ AI\ Shopping\ Platform ubuntu@your-ec2-ip:/home/ubuntu/
+```
+
+#### 4. Configure Environment
+```bash
+cd /home/ubuntu/Smart\ AI\ Shopping\ Platform
+cp .env.ec2 .env
+# Edit .env and update FRONTEND_URL with your EC2 public IP
+nano .env
+```
+
+#### 5. Build and Start Services
+```bash
+# Build all services
+docker-compose -f docker-compose.ec2.yml build
+
+# Start services in detached mode
+docker-compose -f docker-compose.ec2.yml up -d
+```
+
+#### 6. Verify Services
+```bash
+# Check running containers
+docker ps
+
+# View logs
+docker-compose -f docker-compose.ec2.yml logs -f
+
+# Test API Gateway
+curl http://localhost:8080/actuator/health
+```
+
+### Service URLs (Docker Network)
+- API Gateway: http://localhost:8080
+- Auth Service: http://localhost:9898
+- User Service: http://localhost:9001
+- Product Service: http://localhost:9002
+
+### H2 Console Access
+Auth-service H2 console: http://your-ec2-ip:9898/h2-console
+
+### Stop Services
+```bash
+docker-compose -f docker-compose.ec2.yml down
+```
+
+### Troubleshooting
+- **Out of memory**: Ensure JVM memory limits are set: `-Xms128m -Xmx256m`
+- **Port conflicts**: Ensure ports 8080, 9898, 9001, 9002 are not in use
+- **Container not starting**: Check logs with `docker-compose logs [service-name]`
+
+### Full Deployment
+To deploy all services (requires more resources), use the full docker-compose.yml:
+```bash
+docker-compose up -d --build
+```

@@ -17,6 +17,7 @@ spring:
           '[/**]':
             allowedOrigins:
               - http://localhost:3000
+              - "*"
             allowedMethods:
               - GET
               - POST
@@ -57,12 +58,12 @@ spring:
             - Path=/orders/**
 
         - id: cart-service
-          uri: ${ORDER_SERVICE_URL:http://order-service:9004}
+          uri: ${CART_SERVICE_URL:http://order-service:9004}
           predicates:
             - Path=/cart/**
 
         - id: payment-service
-          uri: ${ORDER_SERVICE_URL:http://order-service:9004}
+          uri: ${PAYMENT_SERVICE_URL:http://order-service:9004}
           predicates:
             - Path=/payment/**
 
@@ -76,8 +77,7 @@ jwt:
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+    enabled: false
 
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}
@@ -90,6 +90,10 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: auth-service
+          uri: http://auth-service:9898
+          predicates:
+            - Path=/auth/**,/login/**,/oauth2/**
         - id: user-service
           uri: http://user-service:9001
           predicates:
@@ -102,4 +106,5 @@ spring:
 eureka:
   client:
     enabled: false
-  enabled: false
+  instance:
+    hostname: localhost
