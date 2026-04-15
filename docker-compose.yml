@@ -1,87 +1,84 @@
 version: '3.8'
 
-# ==============================================================================
-# SMART AI SHOPPING PLATFORM - EC2 FREE TIER OPTIMIZED
-# ==============================================================================
-# This configuration is optimized for AWS EC2 Free Tier deployment.
-# Only essential services are enabled to minimize memory and storage usage.
-# Heavy services (MySQL, Kafka, Zookeeper) are commented out.
-# ==============================================================================
-
 services:
   # ---------------------------------------------------------------------------
   # CORE SERVICES (Enabled for Free Tier)
   # ---------------------------------------------------------------------------
 
-  # api-gateway:
-  #   build:
-  #     context: .
-  #     dockerfile: ./api-gateway/Dockerfile
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     - PORT=8080
-  #     - JAVA_OPTS=-Xms128m -Xmx256m
-  #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-  #     - JWT_SECRET=${JWT_SECRET}
-  #     - FRONTEND_URL=${FRONTEND_URL}
-  #     - AUTH_SERVICE_URL=http://auth-service:9898
-  #     - USER_SERVICE_URL=http://user-service:9001
-  #     - PRODUCT_SERVICE_URL=http://product-service:9002
-  #   depends_on:
-  #     - auth-service
-  #     - user-service
-  #     - product-service
-  #   networks:
-  #     - shopping-network
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - JAVA_OPTS=-Xms128m -Xmx256m
+      - EUREKA_CLIENT_ENABLED=false
+      - JWT_SECRET=${JWT_SECRET:-smart-ai-shopping-dev-secret-key-1234567890}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - AUTH_SERVICE_URL=http://auth-service:9898
+      - USER_SERVICE_URL=http://user-service:9001
+      - PRODUCT_SERVICE_URL=http://product-service:9002
+    depends_on:
+      - auth-service
+      - user-service
+      - product-service
+    networks:
+      - shopping-network
 
-  # auth-service:
-  #   build:
-  #     context: .
-  #     dockerfile: ./auth-service/Dockerfile
-  #   ports:
-  #     - "9898:9898"
-  #   environment:
-  #     - PORT=9898
-  #     - JAVA_OPTS=-Xms128m -Xmx256m
-  #     - SPRING_PROFILES_ACTIVE=${AUTH_SERVICE_PROFILES:-}
-  #     - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
-  #     - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
-  #     - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect
-  #     - SPRING_H2_CONSOLE_ENABLED=true
-  #     - EUREKA_CLIENT_ENABLED=false
-  #     - JWT_SECRET=${JWT_SECRET}
-  #     - FRONTEND_URL=${FRONTEND_URL}
-  #     - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
-  #     - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
-  #   networks:
-  #     - shopping-network
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    ports:
+      - "9898:9898"
+    environment:
+      - PORT=9898
+      - JAVA_OPTS=-Xms128m -Xmx256m
+      - SPRING_PROFILES_ACTIVE=ec2
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - JWT_SECRET=${JWT_SECRET:-smart-ai-shopping-dev-secret-key-1234567890}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+    networks:
+      - shopping-network
 
-  # user-service:
-  #   build:
-  #     context: .
-  #     dockerfile: ./user-service/Dockerfile
-  #   ports:
-  #     - "9001:9001"
-  #   environment:
-  #     - PORT=9001
-  #     - JAVA_OPTS=-Xms128m -Xmx256m
-  #     - EUREKA_CLIENT_ENABLED=false
-  #   networks:
-  #     - shopping-network
+  user-service:
+    build:
+      context: .
+      dockerfile: ./user-service/Dockerfile
+    ports:
+      - "9001:9001"
+    environment:
+      - PORT=9001
+      - JAVA_OPTS=-Xms128m -Xmx256m
+      - SPRING_PROFILES_ACTIVE=ec2
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:userdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect
+    networks:
+      - shopping-network
 
-  # product-service:
-  #   build:
-  #     context: .
-  #     dockerfile: ./product-service/Dockerfile
-  #   ports:
-  #     - "9002:9002"
-  #   environment:
-  #     - PORT=9002
-  #     - JAVA_OPTS=-Xms128m -Xmx256m
-  #     - EUREKA_CLIENT_ENABLED=false
-  #   networks:
-  #     - shopping-network
+  product-service:
+    build:
+      context: .
+      dockerfile: ./product-service/Dockerfile
+    ports:
+      - "9002:9002"
+    environment:
+      - PORT=9002
+      - JAVA_OPTS=-Xms128m -Xmx256m
+      - SPRING_PROFILES_ACTIVE=ec2
+      - EUREKA_CLIENT_ENABLED=false
+    networks:
+      - shopping-network
 
   # ---------------------------------------------------------------------------
   # HEAVY SERVICES (Commented out for EC2 Free Tier)
@@ -113,12 +110,6 @@ services:
   #     - mysql-data:/var/lib/mysql
   #     - ./mysql-init:/docker-entrypoint-initdb.d
   #   restart: always
-  #   healthcheck:
-  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 18
-  #     start_period: 90s
   #   networks:
   #     - shopping-network
 
@@ -132,11 +123,6 @@ services:
   #     ZOOKEEPER_TICK_TIME: 2000
   #   networks:
   #     - shopping-network
-  #   healthcheck:
-  #     test: ["CMD", "echo", "ruok"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
 
   # kafka:
   #   image: confluentinc/cp-kafka:7.2.1
@@ -193,19 +179,6 @@ services:
   #     - JAVA_OPTS=-Xms128m -Xmx256m
   #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
   #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-  #     - USER_SERVICE_BASE_URL=${USER_SERVICE_BASE_URL:-http://user-service:9001}
-  #     - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-  #     - MAIL_PORT=${MAIL_PORT:-587}
-  #     - MAIL_USERNAME=${MAIL_USERNAME}
-  #     - MAIL_PASSWORD=${MAIL_PASSWORD}
-  #     - MAIL_FROM=${MAIL_FROM}
-  #     - MAIL_SMTP_AUTH=${MAIL_SMTP_AUTH:-true}
-  #     - MAIL_SMTP_STARTTLS=${MAIL_SMTP_STARTTLS:-true}
-  #     - SMS_ENABLED=${SMS_ENABLED:-false}
-  #     - SMS_PROVIDER_URL=${SMS_PROVIDER_URL:-https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json}
-  #     - SMS_ACCOUNT_ID=${SMS_ACCOUNT_ID:-}
-  #     - SMS_AUTH_TOKEN=${SMS_AUTH_TOKEN:-}
-  #     - SMS_FROM_NUMBER=${SMS_FROM_NUMBER:-}
   #   depends_on:
   #     eureka-server:
   #       condition: service_healthy
@@ -226,17 +199,13 @@ services:
   #     - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/history_db?allowPublicKeyRetrieval=true&useSSL=false
   #     - SPRING_DATASOURCE_USERNAME=${DB_USER}
   #     - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-  #     - SPRING_DATASOURCE_HIKARI_INITIALIZATIONFAILTIMEOUT=60000
   #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
   #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
   #   depends_on:
-  #     eureka-server:
-  #       condition: service_healthy
   #     mysql-db:
   #       condition: service_healthy
   #     kafka:
   #       condition: service_healthy
-  #   restart: on-failure
   #   networks:
   #     - shopping-network
 
@@ -252,23 +221,16 @@ services:
   #     - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/order_db?allowPublicKeyRetrieval=true&useSSL=false
   #     - SPRING_DATASOURCE_USERNAME=${DB_USER}
   #     - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-  #     - SPRING_DATASOURCE_HIKARI_INITIALIZATIONFAILTIMEOUT=60000
   #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
   #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
   #   depends_on:
-  #     eureka-server:
-  #       condition: service_healthy
   #     mysql-db:
   #       condition: service_healthy
   #     kafka:
   #       condition: service_healthy
-  #   restart: on-failure
   #   networks:
   #     - shopping-network
 
 networks:
   shopping-network:
     driver: bridge
-
-# volumes:
-#   mysql-data:
