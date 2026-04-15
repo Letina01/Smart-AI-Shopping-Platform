@@ -4,7 +4,16 @@
 A production-ready microservices-based shopping platform featuring AI recommendations, real-time search, order tracking, and a modern React frontend.
 
 ## 🏗️ Architecture
-- **Microservices**: Eureka Server, API Gateway, Auth, User, Product, AI, Order, History, Notification.
+- **Microservices** (9 services):
+  - **Eureka Server** (8761) - Service discovery
+  - **API Gateway** (8080) - Request routing & JWT validation
+  - **Auth Service** (9898) - Authentication & JWT tokens
+  - **User Service** (9001) - Profile & address management
+  - **Product Service** (9002) - Product search via DummyJSON API
+  - **AI Service** (9003) - Smart product recommendations
+  - **Order Service** (9004) - Orders, cart & payments
+  - **History Service** (9005) - Search & order history
+  - **Notification Service** (9006) - Email/SMS notifications
 - **Databases**: Central MySQL 8.0 instance with dedicated service databases.
 - **Messaging**: Apache Kafka for event-driven search and order logs.
 - **Caching**: Redis for optimized product searches.
@@ -69,26 +78,95 @@ Run these from their respective directories using `mvn spring-boot:run` or your 
 1. **Login/Register**: Open `http://localhost:3000`, create an account, and log in.
 2. **Search**: Enter 'iPhone' or 'Laptop' in the dashboard search bar.
 3. **AI Insight**: Click 'Best Price' or 'Best Rating' to see AI recommendations.
-4. **Order**: Click 'Buy Now' on a product card. This redirects to the platform and saves the order.
-5. **Activity**: Visit the 'History' page to see your search logs and order history.
-6. **Profile**: Update your name or add a shipping address in the 'Profile' section.
+4. **Add to Cart / Buy Now**: Click on product card to add or buy directly.
+5. **Checkout**: Go to Cart, select address and payment method (UPI/COD).
+6. **Payment**: For UPI, scan QR code and confirm payment.
+7. **Activity**: Visit the 'History' page to see your search logs and order history.
+8. **Profile**: Update your name or add a shipping address in the 'Profile' section.
+
+## 🔄 Complete User Journey
+```
+User Registration/Login
+        ↓
+Product Search (DummyJSON API)
+        ↓
+AI Recommendations (Best Price/Rating)
+        ↓
+Add to Cart / Buy Now
+        ↓
+Checkout (Address + Payment)
+        ↓
+Payment (UPI QR / COD)
+        ↓
+Order Created → Kafka Event
+        ↓
+History Saved + Notification Sent
+```
 
 ---
 
 ## 📡 API Endpoints (via API Gateway: 8080)
+
+### Authentication
 - `POST /auth/register` - New user registration
 - `POST /auth/token` - Get JWT token
+- `GET /auth/validate` - Validate JWT token
+
+### Products
 - `GET /products/search?q={query}&email={email}` - Search products
-- `POST /ai/recommend` - Get AI insights
-- `POST /orders` - Create mock order
+
+### AI Service
+- `POST /ai/recommend?criteria={criteria}` - Get AI recommendations
+
+### Orders
+- `POST /orders` - Create order
+- `POST /orders/buy-now` - Direct buy
+- `POST /orders/checkout/{userId}` - Cart checkout
+- `GET /orders/history?userId={id}` - Order history
+
+### Cart
+- `POST /cart/add` - Add to cart
+- `GET /cart/{userId}` - Get cart items
+
+### Payment
+- `POST /payment/request` - UPI payment request
+- `POST /payment/confirm` - Confirm payment
+
+### User
+- `GET /users/profile?email={email}` - Fetch user details
+- `PUT /users/profile` - Update profile
+- `POST /users/address?email={email}` - Add address
+- `DELETE /users/address/{id}` - Delete address
+
+### History
 - `GET /history/search?email={email}` - Fetch search logs
-- `GET /user/profile?email={email}` - Fetch user details
+- `GET /history/orders?userId={id}` - Fetch order history
 
 ---
 
 ## 📄 Notes
 - The default JWT secret is hardcoded for demo purposes; in production, use Environment Variables.
 - AI Service uses mock integration for Spring AI; connect a real provider (OpenAI/Ollama) in `ai-service/application.yml` for real LLM responses.
+- **Kafka Topics Used**:
+  - `user-search-topic` - Product Service → History Service
+  - `order-topic` - Order Service → History & Notification Services
+
+## 📁 Project Structure
+```
+Smart AI Shopping Platform/
+├── frontend/              # React frontend app
+├── api-gateway/          # Spring Cloud Gateway
+├── auth-service/         # JWT Authentication
+├── user-service/         # User management
+├── product-service/      # Product search
+├── ai-service/          # AI recommendations
+├── order-service/       # Orders, cart, payments
+├── history-service/      # Search & order history
+├── notification-service/ # Email/SMS notifications
+├── eureka-server/       # Service discovery
+├── common-library/      # Shared code
+└── mysql-init/          # Database initialization
+```
 
 ---
 
